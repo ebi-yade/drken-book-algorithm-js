@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "target": "ESNext",
+    "checkJs": true,
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,46 @@
+name: check
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v2 🛎
+
+      - name: Exit if the PR has conflicts ⚠️
+        run: |
+          if ! echo ${GITHUB_REF} | perl -ne 'exit 1 if !/^refs\/pull\/[0-9]+\/merge/'; then
+            printf "pull request has conflict\n"
+            exit 1
+          fi
+
+      - name: Check node version ⛓
+        id: nodenv
+        run: |
+          echo "::set-output name=version::${cat .node-version}"
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: ${{ steps.nodenv.output.version }}
+
+      - name: Cache node_modules 📦
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn install
+
+      - name: Run linter 👀
+        run: yarn lint
